@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic
+pydantic-settings
+python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
+apscheduler
+redis
+httpx
+firebase-admin
+pyjwt
+alembic
+python-dotenv
