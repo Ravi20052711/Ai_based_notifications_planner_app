@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import api from '../services/api';
-import { Brain, ChevronLeft, Target, Plus, Clock, Sparkles } from 'lucide-react';
+import { Brain, ChevronLeft, Target, Plus, Clock, Sparkles, Flag, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -20,11 +20,11 @@ const GoalBreakdown = () => {
       if (res.data && res.data.tasks) {
         setBreakdown(res.data);
       } else {
-        alert('AI returned an unexpected format. Please try again.');
+        alert('AI model returned an invalid structure. Please re-phrase your goal.');
       }
     } catch (err) {
       console.error('Goal breakdown failed', err);
-      alert('AI Service is slow or busy. Please check your Ollama status.');
+      alert('AI Service is currently busy or misconfigured. Ensure Ollama is running.');
     } finally {
       setLoading(false);
     }
@@ -50,138 +50,136 @@ const GoalBreakdown = () => {
       navigate('/');
     } catch (err) {
       console.error('Failed to save tasks');
+      alert('Error saving the roadmap to your workspace.');
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6 sm:p-12 relative overflow-hidden">
-      <div className="aurora">
-        <div className="aurora-orb w-[600px] h-[600px] bg-emerald-600/10 top-1/4 right-0" />
-      </div>
-
-      <div className="max-w-5xl mx-auto relative z-10">
-        <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
-          <Link to="/" className="inline-flex items-center text-emerald-400 hover:text-emerald-300 mb-12 transition-colors font-bold group">
-            <ChevronLeft className="w-5 h-5 mr-1 group-hover:-translate-x-1 transition-transform" /> 
-            Back to Dashboard
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 sm:p-12">
+      <div className="max-w-5xl mx-auto">
+        <motion.div initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+          <Link to="/" className="inline-flex items-center text-indigo-600 dark:text-indigo-400 hover:underline mb-8 font-semibold">
+            <ChevronLeft className="w-5 h-5 mr-1" /> Back to Workspace
           </Link>
         </motion.div>
         
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }} 
-          animate={{ y: 0, opacity: 1 }}
-          className="flex items-center space-x-4 mb-12"
-        >
-          <div className="p-4 bg-emerald-600 rounded-3xl shadow-2xl shadow-emerald-600/20">
-            <Target className="w-10 h-10 text-white" />
+        <header className="mb-12">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="p-3 bg-emerald-600 rounded-2xl shadow-lg">
+              <Target className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-4xl font-black tracking-tight">Ambition Mapping</h1>
           </div>
-          <div>
-            <h1 className="text-5xl font-black tracking-tight">Goal Roadmap</h1>
-            <p className="text-gray-500 font-medium">Deconstruct your ambitions into daily steps</p>
-          </div>
-        </motion.div>
+          <p className="text-slate-500 dark:text-slate-400 text-lg">Turn large objectives into a concrete daily execution plan.</p>
+        </header>
 
         {!breakdown ? (
           <motion.div 
-            initial={{ scale: 0.95, opacity: 0 }}
+            initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="glass border-emerald-500/20 rounded-[3rem] p-12 shadow-3xl"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-10 shadow-sm"
           >
             <form onSubmit={handleGenerate} className="space-y-8">
               <div>
-                <label className="block text-xl font-bold text-gray-300 mb-4">What's the big ambition?</label>
+                <label className="block text-lg font-bold text-slate-700 dark:text-slate-300 mb-4">Define your objective</label>
                 <textarea
                   required
-                  placeholder="e.g., Master the fundamentals of Cloud Engineering"
-                  className="w-full bg-gray-950/50 border border-white/10 rounded-[2rem] px-8 py-6 text-xl focus:ring-4 focus:ring-emerald-500/20 outline-none h-40 transition-all placeholder-gray-700"
+                  placeholder="e.g., Build a complete e-commerce website using Next.js"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl px-6 py-5 text-lg focus:ring-4 focus:ring-indigo-500/10 outline-none h-40 transition-all placeholder-slate-400"
                   value={goal}
                   onChange={(e) => setGoal(e.target.value)}
                 />
               </div>
-              <div className="w-64">
-                <label className="block text-sm font-black text-gray-500 uppercase tracking-widest mb-2">Duration (Days)</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="30"
-                  className="w-full bg-gray-950/50 border border-white/10 rounded-2xl px-6 py-4 text-xl font-bold text-emerald-400"
-                  value={days}
-                  onChange={(e) => setDays(e.target.value)}
-                />
+              <div className="flex flex-col sm:flex-row sm:items-center gap-8">
+                <div className="w-48">
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Duration (Days)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="30"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-lg font-bold"
+                    value={days}
+                    onChange={(e) => setDays(e.target.value)}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black text-xl transition-all shadow-xl shadow-indigo-600/20 flex justify-center items-center"
+                >
+                  {loading ? (
+                    <div className="w-6 h-6 border-3 border-white/20 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <>Analyze & Build Path <ArrowRight className="ml-2 w-5 h-5" /></>
+                  )}
+                </button>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={loading}
-                className="w-full bg-emerald-600 hover:bg-emerald-500 py-6 rounded-[2rem] font-black text-2xl transition-all shadow-2xl shadow-emerald-600/30 flex justify-center items-center"
-              >
-                {loading ? (
-                  <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-                ) : (
-                  <>Generate Roadmap <Brain className="ml-3 w-8 h-8" /></>
-                )}
-              </motion.button>
             </form>
           </motion.div>
         ) : (
-          <div className="space-y-10">
+          <div className="space-y-10 pb-20">
             <motion.div 
-              initial={{ y: 20, opacity: 0 }}
+              initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white/5 border border-white/10 p-8 rounded-[2.5rem]"
+              className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-[2rem] shadow-sm"
             >
-              <div>
-                <h2 className="text-sm font-black uppercase tracking-widest text-emerald-400 mb-1">Target Goal</h2>
-                <h3 className="text-3xl font-black text-white">{breakdown.goal}</h3>
+              <div className="mb-6 md:mb-0">
+                <h2 className="text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-1">Target Achievement</h2>
+                <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100">{breakdown.goal}</h3>
               </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <button
                 onClick={handleSaveAll}
                 disabled={saving}
-                className="mt-6 md:mt-0 bg-indigo-600 hover:bg-indigo-500 px-10 py-4 rounded-2xl font-black text-lg flex items-center shadow-xl shadow-indigo-600/20 transition-all"
+                className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-8 py-3 rounded-xl font-black text-sm flex items-center shadow-lg transition-all"
               >
                 {saving ? (
-                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin mr-3"></div>
+                  <div className="w-4 h-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin mr-2"></div>
                 ) : (
-                  <Plus className="w-6 h-6 mr-2" />
+                  <Plus className="w-4 h-4 mr-2" />
                 )}
-                Commit to Schedule
-              </motion.button>
+                Save to My Schedule
+              </button>
             </motion.div>
             
-            <div className="grid grid-cols-1 gap-8">
+            <div className="relative pl-12 space-y-12">
+              <div className="absolute left-[23px] top-4 bottom-4 w-0.5 bg-indigo-100 dark:bg-slate-800"></div>
+              
               {breakdown.tasks.map((task, idx) => (
                 <motion.div 
                   key={idx}
-                  initial={{ x: 20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.1 }}
-                  className="glass border-white/5 rounded-[2.5rem] p-8 flex flex-col sm:flex-row gap-8 hover:border-emerald-500/30 transition-all relative group"
+                  className="relative"
                 >
-                  <div className="flex-shrink-0 w-24 h-24 bg-gray-950 rounded-[1.5rem] border border-white/10 flex flex-col items-center justify-center group-hover:bg-emerald-900/20 transition-colors shadow-inner">
-                    <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Phase</span>
-                    <span className="text-4xl font-black text-emerald-500">{task.day}</span>
+                  <div className="absolute -left-[45px] top-2 w-11 h-11 bg-white dark:bg-slate-900 border-4 border-slate-50 dark:border-slate-950 rounded-2xl shadow-sm flex items-center justify-center z-10">
+                    <span className="text-lg font-black text-indigo-600 dark:text-indigo-400">{task.day}</span>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-black text-white mb-3 group-hover:text-emerald-400 transition-colors">{task.title}</h3>
-                    <p className="text-gray-400 text-lg leading-relaxed mb-6">{task.description}</p>
-                    <div className="flex items-center space-x-6">
-                      <div className="flex items-center text-sm font-bold text-gray-500">
-                        <Clock className="w-4 h-4 mr-2 text-emerald-500/50" />
-                        {task.estimated_minutes}m investment
+                  
+                  <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-8 shadow-sm hover:border-indigo-500/30 transition-all group">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-3 group-hover:text-indigo-600 transition-colors">{task.title}</h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-lg leading-relaxed">{task.description}</p>
                       </div>
-                      <div className="flex items-center text-sm font-bold text-gray-500">
-                        <Sparkles className="w-4 h-4 mr-2 text-yellow-500/50" />
-                        AI Verified
+                      
+                      <div className="flex-shrink-0 flex items-center space-x-2 bg-slate-50 dark:bg-slate-950 px-4 py-2 rounded-xl border border-slate-100 dark:border-slate-800 self-start">
+                        <Clock className="w-4 h-4 text-slate-400" />
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-tighter">{task.estimated_minutes} min effort</span>
                       </div>
                     </div>
                   </div>
                 </motion.div>
               ))}
+              
+              <div className="flex justify-center pt-8">
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-6 py-3 rounded-full flex items-center space-x-2">
+                  <Flag className="w-4 h-4 text-emerald-600" />
+                  <span className="text-xs font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Goal Completion</span>
+                </div>
+              </div>
             </div>
           </div>
         )}

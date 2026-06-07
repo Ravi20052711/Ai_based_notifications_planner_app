@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
-import { Brain, Clock, ChevronLeft, Sparkles, LayoutGrid } from 'lucide-react';
+import { Brain, Clock, ChevronLeft, Sparkles, LayoutGrid, List } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -15,7 +15,7 @@ const DailyPlan = () => {
         const res = await api.post('/ai/plan');
         setPlan(res.data);
       } catch (err) {
-        setError(err.response?.data?.detail || 'Failed to generate plan. Ensure you have pending tasks.');
+        setError(err.response?.data?.detail || 'Failed to generate plan. Ensure you have pending tasks for today.');
       } finally {
         setLoading(false);
       }
@@ -24,102 +24,89 @@ const DailyPlan = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-6 sm:p-12 relative overflow-hidden">
-      <div className="aurora">
-        <div className="aurora-orb w-[600px] h-[600px] bg-indigo-600/10 top-0 left-1/4" />
-      </div>
-
-      <div className="max-w-4xl mx-auto relative z-10">
-        <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
-          <Link to="/" className="inline-flex items-center text-indigo-400 hover:text-indigo-300 mb-12 transition-colors font-bold group">
-            <ChevronLeft className="w-5 h-5 mr-1 group-hover:-translate-x-1 transition-transform" /> 
-            Back to Dashboard
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 sm:p-12">
+      <div className="max-w-4xl mx-auto">
+        <motion.div initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+          <Link to="/" className="inline-flex items-center text-indigo-600 dark:text-indigo-400 hover:underline mb-8 font-semibold">
+            <ChevronLeft className="w-5 h-5 mr-1" /> Back to Workspace
           </Link>
         </motion.div>
         
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }} 
-          animate={{ y: 0, opacity: 1 }}
-          className="flex items-center space-x-4 mb-12"
-        >
-          <div className="p-4 bg-indigo-600 rounded-3xl shadow-2xl shadow-indigo-600/20">
-            <LayoutGrid className="w-10 h-10 text-white" />
+        <header className="mb-12">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg">
+              <LayoutGrid className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-4xl font-black tracking-tight">Daily Optimization</h1>
           </div>
-          <div>
-            <h1 className="text-5xl font-black tracking-tight">AI Planner</h1>
-            <p className="text-gray-500 font-medium">Smart optimization of your daily schedule</p>
-          </div>
-        </motion.div>
+          <p className="text-slate-500 dark:text-slate-400 text-lg">AI-powered time-blocking for your pending tasks.</p>
+        </header>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 glass rounded-[3rem] border-white/5">
+          <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm">
             <motion.div 
               animate={{ rotate: 360 }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              className="mb-6"
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              className="mb-4"
             >
-              <Brain className="w-16 h-16 text-indigo-500" />
+              <RefreshCw className="w-12 h-12 text-indigo-500" />
             </motion.div>
-            <p className="text-gray-400 font-bold animate-pulse">Analyzing tasks and optimizing flow...</p>
+            <p className="text-slate-400 font-bold">Neural engine is organizing your day...</p>
           </div>
         ) : error ? (
-          <motion.div 
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="glass border-red-500/30 rounded-3xl p-8 text-center"
-          >
-            <p className="text-red-400 font-medium">{error}</p>
-          </motion.div>
+          <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-2xl p-8 text-center">
+            <p className="text-amber-700 dark:text-amber-400 font-medium">{error}</p>
+            <Link to="/" className="mt-4 inline-block bg-amber-600 text-white px-6 py-2 rounded-xl font-bold">Add Tasks First</Link>
+          </div>
         ) : (
-          <div className="space-y-12">
+          <div className="space-y-10">
             <motion.div 
-              initial={{ y: 20, opacity: 0 }}
+              initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="glass border-indigo-500/20 rounded-[2.5rem] p-10 relative overflow-hidden"
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm"
             >
-              <div className="absolute top-0 left-0 w-2 h-full bg-indigo-600" />
-              <div className="flex items-start space-x-4">
-                <Sparkles className="w-6 h-6 text-yellow-400 flex-shrink-0 mt-1" />
-                <div>
-                  <h2 className="text-sm font-black uppercase tracking-widest text-indigo-400 mb-2">AI Summary</h2>
-                  <p className="text-xl text-gray-200 leading-relaxed font-medium italic">
-                    "{plan.summary}"
-                  </p>
-                </div>
+              <div className="flex items-center space-x-3 mb-4">
+                <Sparkles className="w-5 h-5 text-indigo-500" />
+                <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Strategist Summary</h2>
               </div>
+              <p className="text-xl text-slate-700 dark:text-slate-200 leading-relaxed font-medium italic">
+                "{plan.summary}"
+              </p>
             </motion.div>
 
-            <div className="space-y-6">
+            <div className="relative pl-8 space-y-4">
+              <div className="absolute left-[11px] top-0 bottom-0 w-0.5 bg-slate-200 dark:bg-slate-800"></div>
+              
               {plan.plan.map((item, idx) => (
                 <motion.div 
                   key={idx}
-                  initial={{ x: -30, opacity: 0 }}
+                  initial={{ x: 20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 + (idx * 0.1) }}
-                  className="flex items-start space-x-6 group"
+                  transition={{ delay: idx * 0.1 }}
+                  className="relative"
                 >
-                  <div className="flex flex-col items-center">
-                    <div className="w-16 h-16 glass rounded-2xl flex items-center justify-center border-white/10 group-hover:border-indigo-500/50 transition-colors">
-                      <span className="text-indigo-400 font-black text-xs">{item.time}</span>
-                    </div>
-                    {idx !== plan.plan.length - 1 && <div className="w-0.5 h-12 bg-white/5 mt-2" />}
-                  </div>
+                  <div className="absolute -left-[31px] top-6 w-3 h-3 bg-indigo-600 rounded-full border-4 border-slate-50 dark:border-slate-950 ring-4 ring-indigo-500/10"></div>
                   
-                  <div className="flex-1 glass border-white/5 rounded-3xl p-6 group-hover:bg-white/5 transition-all">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                      <div className="flex items-center text-gray-500 text-xs font-bold">
-                        <Clock className="w-3 h-3 mr-1" />
-                        {item.duration_minutes}m
+                  <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="text-indigo-600 dark:text-indigo-400 font-mono font-black text-lg bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-lg">
+                          {item.time}
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">{item.title}</h3>
                       </div>
-                    </div>
-                    <div className="flex items-center">
-                       <span className={`text-[10px] px-3 py-1 rounded-full uppercase font-black tracking-widest ${
-                         item.priority === 'high' ? 'bg-red-400/10 text-red-400' : 'bg-blue-400/10 text-blue-400'
-                       }`}>
-                         {item.priority}
-                       </span>
+                      
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center text-slate-400 text-xs font-bold uppercase tracking-wider">
+                          <Clock className="w-4 h-4 mr-1.5 opacity-50" />
+                          {item.duration_minutes} min
+                        </div>
+                        <span className={`text-[10px] px-3 py-1 rounded-full uppercase font-black tracking-widest ${
+                          item.priority === 'high' ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-blue-50 text-blue-600 border border-blue-100'
+                        }`}>
+                          {item.priority}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -131,5 +118,7 @@ const DailyPlan = () => {
     </div>
   );
 };
+
+import { RefreshCw } from 'lucide-react';
 
 export default DailyPlan;

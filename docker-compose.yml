@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  backend:
+    image: ravisantosh/notify-backend:latest
+    container_name: notify-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/notify_ai.db:/app/notify_ai.db
+    environment:
+      - DATABASE_URL=sqlite:///./notify_ai.db
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=qwen:4b
+      - SECRET_KEY=enterprise_secret_key_123
+    depends_on:
+      - ollama
+    networks:
+      - notify-network
+
+  frontend:
+    image: ravisantosh/notify-frontend:latest
+    container_name: notify-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - notify-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: notify-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # Auto-pull the model on startup
+    entrypoint: /bin/sh -c "ollama serve & sleep 5 && ollama pull qwen:4b && wait"
+    networks:
+      - notify-network
+
+networks:
+  notify-network:
+    driver: bridge
+
+volumes:
+  ollama_data:
